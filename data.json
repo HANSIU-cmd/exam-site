@@ -1,8 +1,8 @@
 {
-  "topLink": {
-    "label": "수행평가 캘린더 샘플",
-    "url": "https://perf-calendar-prototype.vercel.app/"
-  },
+  "topLinks": [
+    { "label": "수행평가 캘린더 샘플", "url": "https://perf-calendar-prototype.vercel.app/" },
+    { "label": "문제로 연습하기", "url": "/testlab/" }
+  ],
   "subjects": [
     { "name": "국어", "documents": [
       { "title": "1-1 기말 국어 문법(누적 범위)", "url": "https://raw.githubusercontent.com/HANSIU-cmd/exam-site/main/files/1-1 기말 국어 문법(누적 범위).pdf" },
