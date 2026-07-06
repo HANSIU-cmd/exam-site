@@ -18,21 +18,42 @@
     });
 
   function render(data) {
-    renderTopLink(data && data.topLink);
+    renderTopLinks(data);
     renderSubjects((data && data.subjects) || []);
   }
 
-  function renderTopLink(topLink) {
+  function renderTopLinks(data) {
     topLinkEl.textContent = "";
-    if (!topLink || !topLink.url) return;
 
-    var a = document.createElement("a");
-    // url에 공백·괄호·+ 등 특수문자가 있어도 정상적으로 열리도록 encodeURI 처리
-    a.href = encodeURI(topLink.url);
-    a.textContent = topLink.label || topLink.url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    topLinkEl.appendChild(a);
+    // topLinks(배열)를 우선 사용하고, 예전 단일 topLink도 계속 지원
+    var links = [];
+    if (data && Array.isArray(data.topLinks)) {
+      links = data.topLinks;
+    } else if (data && data.topLink) {
+      links = [data.topLink];
+    }
+
+    links.forEach(function (link) {
+      if (!link || !link.url) return;
+
+      var a = document.createElement("a");
+      // url에 공백·괄호·+ 등 특수문자가 있어도 정상적으로 열리도록 encodeURI 처리
+      a.href = encodeURI(link.url);
+      a.textContent = link.label || link.url;
+
+      // 새 탭 여부 자동 판별: "/"로 시작하는 내부 링크는 같은 탭,
+      // http(s):// 외부 주소는 새 탭으로 연다. 외부 링크에만 ↗ 표시.
+      if (isExternal(link.url)) {
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.className = "external";
+      }
+      topLinkEl.appendChild(a);
+    });
+  }
+
+  function isExternal(url) {
+    return /^https?:\/\//i.test(url);
   }
 
   function renderSubjects(subjects) {

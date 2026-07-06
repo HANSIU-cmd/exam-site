@@ -60,6 +60,9 @@ a {
 
 .top-link {
   margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .top-link a {
@@ -78,7 +81,8 @@ a {
   background: #fff;
 }
 
-.top-link a::after {
+/* 외부 링크에만 ↗ 표시 (내부 링크에는 없음) */
+.top-link a.external::after {
   content: "↗";
   margin-left: 8px;
   color: var(--gray-2);

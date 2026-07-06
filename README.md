@@ -23,7 +23,10 @@ exam-site/
 
 ```json
 {
-  "topLink": { "label": "표시할 텍스트", "url": "https://..." },
+  "topLinks": [
+    { "label": "표시할 텍스트", "url": "https://..." },
+    { "label": "문제로 연습하기", "url": "/testlab/" }
+  ],
   "subjects": [
     {
       "name": "국어",
@@ -62,11 +65,29 @@ exam-site/
    - `url`: 방금 올린 파일의 raw 링크 (`files/` 뒤에 **실제 파일명 그대로**, 공백·괄호 포함)
 - **삭제**: `documents`에서 해당 항목을 지웁니다.
 
-### (c) 상단 고정 링크 수정
-`data.json`의 `topLink`에서 `label`(표시 텍스트)과 `url`(주소)을 바꿉니다.
+### (c) 상단 링크 추가 / 수정 / 삭제
+상단 링크는 `data.json`의 **`topLinks` 배열**로 관리합니다. **배열 순서 = 화면에 보이는 왼→오른쪽 순서**입니다.
+
 ```json
-"topLink": { "label": "수행평가 캘린더", "url": "https://example.com" }
+"topLinks": [
+  { "label": "수행평가 캘린더 샘플", "url": "https://perf-calendar-prototype.vercel.app/" },
+  { "label": "문제로 연습하기", "url": "/testlab/" }
+]
 ```
+
+- **수정**: 해당 항목의 `label`(표시 텍스트) 또는 `url`(주소)을 바꿉니다.
+- **추가**: 원하는 위치에 `{ "label": "...", "url": "..." }` 항목을 넣습니다.
+- **삭제**: 해당 `{ ... }` 항목을 통째로 지웁니다.
+
+**새 탭 vs 같은 탭은 url을 보고 자동으로 결정됩니다** (별도 설정 불필요):
+
+| url 형태 | 예시 | 열리는 방식 | 표시 |
+|---|---|---|---|
+| `http://` / `https://` 로 시작 (외부) | `https://example.com` | **새 탭** | 끝에 ↗ |
+| `/` 로 시작 (같은 사이트 내부) | `/testlab/` | **같은 탭** | 화살표 없음 |
+
+> 내부 페이지(예: `/testlab/`)는 리포에 해당 폴더/파일이 있어야 열립니다.
+> 예: `/testlab/` → 리포의 `testlab/index.html`.
 
 ### (d) ⚠️ 파일 삭제 시 주의
 `files/`에서 파일을 지웠다면, **`data.json`에서도 그 파일을 가리키는 항목을 반드시 함께 삭제**하세요.
