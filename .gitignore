@@ -1,0 +1,11 @@
+# OS / 편집기
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/
+
+# 로컬 도구
+node_modules/
+.vercel/

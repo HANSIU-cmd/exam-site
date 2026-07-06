@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1-9반 시험 자료 - Sample</title>
+  <meta name="description" content="1-9반 시험 자료 다운로드 사이트" />
+
+  <!-- 폰트: 본문 Pretendard, 큰 제목 Noto Serif KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    as="style"
+    crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+  />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <h1 class="site-title">1-9반 시험 자료 - Sample</h1>
+      <!-- 상단 고정 링크: data.json의 topLink에서 렌더링됨 -->
+      <div id="top-link" class="top-link"></div>
+    </header>
+
+    <!-- 과목별 섹션: data.json의 subjects 순서대로 렌더링됨 -->
+    <main id="subjects" class="subjects" aria-live="polite">
+      <p class="state-msg">불러오는 중…</p>
+    </main>
+
+    <footer class="site-footer">
+      <p>Design. Crafted by HANSIU</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
