@@ -1,12 +1,12 @@
-/* ===== 디자인 토큰 ===== */
+/* ===== 디자인 토큰 (흑-백 · 쿨톤 그레이) ===== */
 :root {
-  --bg: #ffffff;          /* 배경 흰색 */
-  --ink: #1a1a1a;         /* 잉크 블랙 (본문/제목) */
-  --gray-1: #6b6964;      /* 진한 보조 그레이 */
-  --gray-2: #8d8a85;      /* 보조 그레이 */
-  --gray-3: #b5b3ad;      /* 연한 보조 그레이 */
-  --border: #e4e3de;      /* 경계선 */
-  --surface: #faf9f7;     /* 연한 배경 */
+  --bg: #ffffff;          /* 배경 순백 */
+  --ink: #17171a;         /* 잉크 블랙 (쿨톤 근블랙) */
+  --gray-1: #52525b;      /* 진한 쿨 그레이 */
+  --gray-2: #71717a;      /* 쿨 그레이 */
+  --gray-3: #a1a1aa;      /* 연한 쿨 그레이 */
+  --border: #e4e4e7;      /* 경계선 (쿨 라이트 그레이) */
+  --surface: #f4f4f5;     /* 연한 배경 (쿨 오프화이트) */
 
   --maxw: 960px;
   --space: 24px;
@@ -45,15 +45,25 @@ a {
 
 /* ===== 헤더 ===== */
 .site-header {
-  padding: 56px 0 28px;
+  padding: 64px 0 32px;
   border-bottom: 1px solid var(--border);
+}
+
+.site-eyebrow {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gray-3);
 }
 
 .site-title {
   font-family: "Noto Serif KR", "Apple SD Gothic Neo", serif;
   font-weight: 700;
-  font-size: clamp(28px, 5vw, 44px);
-  letter-spacing: -0.01em;
+  font-size: clamp(32px, 5.5vw, 52px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   margin: 0;
   color: var(--ink);
 }
@@ -69,16 +79,16 @@ a {
   display: inline-block;
   padding: 10px 16px;
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: #fff;
   color: var(--ink);
   text-decoration: none;
   font-size: 15px;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .top-link a:hover {
-  border-color: var(--gray-3);
-  background: #fff;
+  border-color: var(--ink);
+  background: var(--surface);
 }
 
 /* 외부 링크에만 ↗ 표시 (내부 링크에는 없음) */

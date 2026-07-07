@@ -1,7 +1,7 @@
 {
   "topLinks": [
     { "label": "수행평가 캘린더 샘플", "url": "https://perf-calendar-prototype.vercel.app/" },
-    { "label": "문제로 연습하기", "url": "/testlab/" }
+    { "label": "문제로 연습하기(처음 로딩 시 몇 초 기다려야 합니다)", "url": "/testlab/" }
   ],
   "subjects": [
     { "name": "국어", "documents": [
