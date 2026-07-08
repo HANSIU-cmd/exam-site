@@ -39,7 +39,7 @@
       var a = document.createElement("a");
       // url에 공백·괄호·+ 등 특수문자가 있어도 정상적으로 열리도록 encodeURI 처리
       a.href = encodeURI(link.url);
-      a.textContent = link.label || link.url;
+      appendLinkLabel(a, link.label || link.url);
 
       // 새 탭 여부 자동 판별: "/"로 시작하는 내부 링크는 같은 탭,
       // http(s):// 외부 주소는 새 탭으로 연다. 외부 링크에만 ↗ 표시.
@@ -54,6 +54,20 @@
 
   function isExternal(url) {
     return /^https?:\/\//i.test(url);
+  }
+
+  // 라벨 끝의 괄호 안내문은 회색(.link-note)으로 분리해 부차 정보로 표시
+  function appendLinkLabel(a, label) {
+    var m = label.match(/^([\s\S]*?)(\s*\([\s\S]*\))\s*$/);
+    if (m && m[1].trim()) {
+      a.appendChild(document.createTextNode(m[1].trim()));
+      var note = document.createElement("span");
+      note.className = "link-note";
+      note.textContent = m[2].trim();
+      a.appendChild(note);
+    } else {
+      a.appendChild(document.createTextNode(label));
+    }
   }
 
   function renderSubjects(subjects) {
@@ -79,6 +93,7 @@
     title.className = "subject-title";
 
     var nameSpan = document.createElement("span");
+    nameSpan.className = "subject-name";
     nameSpan.textContent = subject && subject.name ? subject.name : "(이름 없음)";
     title.appendChild(nameSpan);
 
@@ -103,6 +118,14 @@
     docs.forEach(function (doc) {
       grid.appendChild(buildDocCard(doc));
     });
+    // 2열 그리드에서 항목이 홀수면 마지막 빈 칸을 투명 placeholder로 채워
+    // 회색 채움 없이 아래 구분선만 이어지게 한다.
+    if (docs.length % 2 === 1) {
+      var filler = document.createElement("div");
+      filler.className = "doc-card is-empty";
+      filler.setAttribute("aria-hidden", "true");
+      grid.appendChild(filler);
+    }
     section.appendChild(grid);
 
     return section;
@@ -112,17 +135,18 @@
     var card = document.createElement("div");
     card.className = "doc-card";
 
-    var titleEl = document.createElement("p");
-    titleEl.className = "doc-title";
-    titleEl.textContent = (doc && doc.title) || "(제목 없음)";
-
+    // 위계: 파일형식 라벨(상단, 회색 대문자) → 파일명(500)
     var ext = getExtension(doc && doc.url);
     if (ext) {
       var extEl = document.createElement("span");
       extEl.className = "doc-ext";
       extEl.textContent = ext;
-      titleEl.appendChild(extEl);
+      card.appendChild(extEl);
     }
+
+    var titleEl = document.createElement("p");
+    titleEl.className = "doc-title";
+    titleEl.textContent = (doc && doc.title) || "(제목 없음)";
     card.appendChild(titleEl);
 
     if (doc && doc.url) {
