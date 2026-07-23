@@ -74,7 +74,11 @@ module.exports = async function handler(req, res) {
     }
 
     if (!geminiRes.ok) {
-      const msg = (data && data.error && data.error.message) || "Gemini API 호출 실패";
+      let msg = (data && data.error && data.error.message) || "Gemini API 호출 실패";
+      // 무료 등급 속도 제한(429)에 걸린 경우, 원문 오류 대신 학생이 이해하기 쉬운 안내로 대체
+      if (geminiRes.status === 429) {
+        msg = "지금 질문이 몰려서 잠시 답변이 지연되고 있어요. 20~30초 후 다시 물어봐 주세요.";
+      }
       res.status(geminiRes.status).json({ error: msg });
       return;
     }
