@@ -9,7 +9,11 @@
 const fs = require("fs");
 const path = require("path");
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+// "gemini-flash-latest"는 Google이 관리하는 별칭으로, 항상 현재 시점의
+// 최신 안정(GA) Flash 모델을 자동으로 가리킨다. 특정 버전명을 직접 박아두면
+// 그 모델이 나중에 신규 사용자에게 지원 종료될 때 이 함수가 깨지므로,
+// 별칭을 사용해 유지보수 부담을 줄인다.
+const GEMINI_MODEL = "gemini-flash-latest";
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/" +
   GEMINI_MODEL +
