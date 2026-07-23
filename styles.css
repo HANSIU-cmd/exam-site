@@ -153,6 +153,98 @@ a {
   font-weight: 400;
 }
 
+/* ===== AI 질문창 ===== */
+.ask-box {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ask-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  transition: border-color 0.15s ease;
+}
+
+.ask-input::placeholder {
+  color: var(--hint);
+}
+
+.ask-input:hover {
+  border-color: #cfcfcf;
+}
+
+.ask-input:focus-visible {
+  outline: none;
+  border-color: var(--text);
+}
+
+.ask-submit {
+  flex: none;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  border: 1px solid var(--text);
+  border-radius: var(--radius);
+  background: var(--text);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.ask-submit:hover {
+  background: #3f3f3f;
+}
+
+.ask-submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ask-submit:focus-visible,
+.ask-input:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.ask-answer {
+  margin-top: 0.75rem;
+}
+
+.ask-answer:empty {
+  display: none;
+}
+
+.ask-answer-box {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fafafa;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.ask-answer-box.is-loading,
+.ask-answer-box.is-error {
+  color: var(--meta);
+}
+
+.ask-answer-box.is-error {
+  color: var(--accent);
+}
+
 /* ===== 과목 섹션 ===== */
 .subjects {
   padding-top: 0.5rem;
@@ -327,6 +419,13 @@ a {
     align-items: stretch;
   }
   .top-link a {
+    width: 100%;
+  }
+
+  .ask-box {
+    flex-direction: column;
+  }
+  .ask-submit {
     width: 100%;
   }
 

@@ -19,6 +19,20 @@
       <p class="site-subtitle">Sample</p>
       <!-- 상단 고정 링크: data.json의 topLink에서 렌더링됨 -->
       <div id="top-link" class="top-link"></div>
+
+      <!-- AI 질문창: /api/ask 서버리스 함수를 통해 Gemini에게 질문 -->
+      <form id="ask-form" class="ask-box" autocomplete="off">
+        <input
+          id="ask-input"
+          class="ask-input"
+          type="text"
+          maxlength="500"
+          placeholder="시험 자료에 대해 물어보세요 (예: 한국사 시험범위가 뭐야?)"
+          aria-label="시험 자료 질문 입력"
+        />
+        <button type="submit" class="ask-submit" aria-label="질문 보내기">묻기</button>
+      </form>
+      <div id="ask-answer" class="ask-answer" role="status" aria-live="polite"></div>
     </header>
 
     <!-- 과목별 섹션: data.json의 subjects 순서대로 렌더링됨 -->

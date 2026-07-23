@@ -6,6 +6,57 @@
 
   var topLinkEl = document.getElementById("top-link");
   var subjectsEl = document.getElementById("subjects");
+  var askForm = document.getElementById("ask-form");
+  var askInput = document.getElementById("ask-input");
+  var askAnswerEl = document.getElementById("ask-answer");
+
+  if (askForm) {
+    askForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      askQuestion();
+    });
+  }
+
+  function askQuestion() {
+    var question = askInput.value.trim();
+    if (!question) return;
+
+    var submitBtn = askForm.querySelector(".ask-submit");
+    submitBtn.disabled = true;
+    showAskState("이전 자료를 참고해서 답변을 생성하는 중…", "is-loading");
+
+    fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: question }),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok) throw new Error((data && data.error) || "요청 실패 (" + res.status + ")");
+          return data;
+        });
+      })
+      .then(function (data) {
+        showAskState(data.answer || "답변을 받지 못했습니다.", "");
+      })
+      .catch(function (err) {
+        showAskState(
+          "답변을 가져오지 못했습니다. (" + (err && err.message ? err.message : "알 수 없는 오류") + ")",
+          "is-error"
+        );
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+      });
+  }
+
+  function showAskState(text, extraClass) {
+    askAnswerEl.textContent = "";
+    var box = document.createElement("div");
+    box.className = "ask-answer-box" + (extraClass ? " " + extraClass : "");
+    box.textContent = text;
+    askAnswerEl.appendChild(box);
+  }
 
   fetch("data.json", { cache: "no-store" })
     .then(function (res) {
