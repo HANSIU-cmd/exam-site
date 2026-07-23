@@ -58,19 +58,15 @@ module.exports = async function handler(req, res) {
   const prompt = buildPrompt(context, question);
 
   try {
-    const geminiRes = await fetch(GEMINI_URL + "?key=" + apiKey, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          maxOutputTokens: 800,
-          temperature: 0.4,
-        },
-      }),
-    });
+    let geminiRes = await callGemini(apiKey, prompt, true);
+    let data = await geminiRes.json();
 
-    const data = await geminiRes.json();
+    // thinkingConfig을 이 모델(버전)이 지원하지 않아 실패하는 경우를 대비해,
+    // 해당 옵션 없이 한 번 더 시도한다 (미래 모델 변경에 대한 안전장치).
+    if (!geminiRes.ok) {
+      geminiRes = await callGemini(apiKey, prompt, false);
+      data = await geminiRes.json();
+    }
 
     if (!geminiRes.ok) {
       const msg = (data && data.error && data.error.message) || "Gemini API 호출 실패";
@@ -97,6 +93,29 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: "서버 오류: " + (err && err.message ? err.message : String(err)) });
   }
 };
+
+/** Gemini generateContent 호출. useThinkingConfig=false면 thinkingConfig 없이 호출(구형 모델 대비). */
+async function callGemini(apiKey, prompt, useThinkingConfig) {
+  const generationConfig = {
+    maxOutputTokens: 2000,
+    temperature: 0.4,
+  };
+  if (useThinkingConfig) {
+    // 최신 Gemini 모델은 답하기 전 내부 "생각(thinking)" 단계를 거치는데,
+    // 이 토큰도 maxOutputTokens 안에 포함되어 답변이 잘리는 원인이 된다.
+    // 이 앱은 단순 안내 QA라 깊은 추론이 필요 없으므로 최소화한다.
+    generationConfig.thinkingConfig = { thinkingLevel: "minimal" };
+  }
+
+  return fetch(GEMINI_URL + "?key=" + apiKey, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: generationConfig,
+    }),
+  });
+}
 
 /** data.json을 읽어 "어떤 과목에 어떤 자료가 있는지" 목록 문자열을 만든다. */
 function buildContext() {
