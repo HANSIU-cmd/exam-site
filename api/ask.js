@@ -66,9 +66,9 @@ module.exports = async function handler(req, res) {
     let geminiRes = await callGemini(apiKey, systemInstruction, contents, true);
     let data = await geminiRes.json();
 
-    // thinkingConfig을 이 모델(버전)이 지원하지 않아 실패하는 경우를 대비해,
-    // 해당 옵션 없이 한 번 더 시도한다 (미래 모델 변경에 대한 안전장치).
-    if (!geminiRes.ok) {
+    // thinkingConfig을 이 모델(버전)이 지원하지 않아 실패하는 경우(400)에만 재시도한다.
+    // 429(사용량 초과)·5xx 등은 재시도해도 어차피 실패하고 API 호출만 두 배로 낭비되므로 제외.
+    if (!geminiRes.ok && geminiRes.status === 400) {
       geminiRes = await callGemini(apiKey, systemInstruction, contents, false);
       data = await geminiRes.json();
     }
