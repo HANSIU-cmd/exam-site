@@ -219,10 +219,25 @@ a {
 
 .ask-answer {
   margin-top: 0.75rem;
+  max-height: 420px;
+  overflow-y: auto;
 }
 
 .ask-answer:empty {
   display: none;
+}
+
+.ask-turn {
+  margin-bottom: 0.75rem;
+}
+
+.ask-turn-label {
+  margin: 0 0 0.3rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hint);
 }
 
 .ask-answer-box {
@@ -236,6 +251,14 @@ a {
   white-space: pre-wrap;
 }
 
+/* 질문(user) 말풍선은 카드 없이 가볍게, 답변(model)만 카드로 강조 */
+.ask-turn-user .ask-answer-box {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  font-weight: 600;
+}
+
 .ask-answer-box.is-loading,
 .ask-answer-box.is-error {
   color: var(--meta);
@@ -243,6 +266,26 @@ a {
 
 .ask-answer-box.is-error {
   color: var(--accent);
+}
+
+.ask-reset {
+  margin-top: 0.5rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--hint);
+  font-family: var(--font);
+  font-size: 12.5px;
+  text-decoration: underline;
+  text-decoration-color: var(--dl-underline);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ask-reset:hover,
+.ask-reset:focus-visible {
+  color: var(--text);
+  text-decoration-color: var(--text);
 }
 
 /* ===== 과목 섹션 ===== */

@@ -44,6 +44,7 @@ module.exports = async function handler(req, res) {
     }
   }
   const question = body && typeof body.question === "string" ? body.question.trim() : "";
+  const rawHistory = body && Array.isArray(body.history) ? body.history : [];
 
   if (!question) {
     res.status(400).json({ error: "질문 내용이 비어 있습니다." });
@@ -54,17 +55,21 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const context = buildContext();
-  const prompt = buildPrompt(context, question);
+  // 대화 기록은 최근 3턴(질문+답변 = 1턴)까지만 사용 — 비용·오남용 방지
+  const MAX_TURNS = 3;
+  const history = sanitizeHistory(rawHistory).slice(-MAX_TURNS * 2);
+
+  const systemInstruction = buildSystemInstruction(buildContext());
+  const contents = history.concat([{ role: "user", parts: [{ text: question }] }]);
 
   try {
-    let geminiRes = await callGemini(apiKey, prompt, true);
+    let geminiRes = await callGemini(apiKey, systemInstruction, contents, true);
     let data = await geminiRes.json();
 
     // thinkingConfig을 이 모델(버전)이 지원하지 않아 실패하는 경우를 대비해,
     // 해당 옵션 없이 한 번 더 시도한다 (미래 모델 변경에 대한 안전장치).
     if (!geminiRes.ok) {
-      geminiRes = await callGemini(apiKey, prompt, false);
+      geminiRes = await callGemini(apiKey, systemInstruction, contents, false);
       data = await geminiRes.json();
     }
 
@@ -95,7 +100,7 @@ module.exports = async function handler(req, res) {
 };
 
 /** Gemini generateContent 호출. useThinkingConfig=false면 thinkingConfig 없이 호출(구형 모델 대비). */
-async function callGemini(apiKey, prompt, useThinkingConfig) {
+async function callGemini(apiKey, systemInstruction, contents, useThinkingConfig) {
   const generationConfig = {
     maxOutputTokens: 2000,
     temperature: 0.4,
@@ -111,10 +116,28 @@ async function callGemini(apiKey, prompt, useThinkingConfig) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      contents: contents,
       generationConfig: generationConfig,
     }),
   });
+}
+
+/** 클라이언트가 보낸 history를 Gemini contents 형식으로 안전하게 정제한다. */
+function sanitizeHistory(rawHistory) {
+  return rawHistory
+    .filter(function (turn) {
+      return (
+        turn &&
+        (turn.role === "user" || turn.role === "model") &&
+        typeof turn.text === "string" &&
+        turn.text.trim() &&
+        turn.text.length <= 4000
+      );
+    })
+    .map(function (turn) {
+      return { role: turn.role, parts: [{ text: turn.text.trim() }] };
+    });
 }
 
 /** data.json을 읽어 "어떤 과목에 어떤 자료가 있는지" 목록 문자열을 만든다. */
@@ -138,18 +161,17 @@ function buildContext() {
   }
 }
 
-function buildPrompt(context, question) {
+function buildSystemInstruction(context) {
   return [
     "너는 고등학교 1학년 1-9반 학생들을 위한 시험 자료 다운로드 사이트의 안내 도우미야.",
     "아래는 이 사이트에 현재 등록된 과목별 자료 목록이야. 학생이 이 자료들에 대해 묻거나,",
     "시험 범위·공부 방법·일반적인 학습 관련 질문을 하면 친절하고 간결하게 한국어로 답해줘.",
     "사이트에 없는 내용을 마치 있는 것처럼 단정하지 말고, 확실하지 않으면 솔직히 모른다고 말해줘.",
     "답변은 3~6문장 정도로 간결하게, 존댓말로 작성해줘.",
+    "이전 대화 맥락이 있다면 자연스럽게 이어서 답해줘.",
     "",
     "=== 등록된 자료 목록 ===",
     context,
     "=== 목록 끝 ===",
-    "",
-    "학생 질문: " + question,
   ].join("\n");
 }

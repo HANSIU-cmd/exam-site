@@ -9,6 +9,11 @@
   var askForm = document.getElementById("ask-form");
   var askInput = document.getElementById("ask-input");
   var askAnswerEl = document.getElementById("ask-answer");
+  var askResetBtn = document.getElementById("ask-reset");
+
+  // 이번 방문(새로고침 전까지) 동안만 유지되는 대화 기록. 서버는 이 중
+  // 최근 3턴만 사용하며, 새로고침하면 자연스럽게 초기화된다.
+  var conversation = [];
 
   if (askForm) {
     askForm.addEventListener("submit", function (e) {
@@ -17,18 +22,32 @@
     });
   }
 
+  if (askResetBtn) {
+    askResetBtn.addEventListener("click", function () {
+      conversation = [];
+      askAnswerEl.textContent = "";
+      askResetBtn.hidden = true;
+    });
+  }
+
   function askQuestion() {
     var question = askInput.value.trim();
     if (!question) return;
 
+    var historyToSend = conversation.slice(-6); // 최근 3턴(질문+답변)까지만 전송
+
+    conversation.push({ role: "user", text: question });
+    askInput.value = "";
+    askResetBtn.hidden = false;
+
     var submitBtn = askForm.querySelector(".ask-submit");
     submitBtn.disabled = true;
-    showAskState("이전 자료를 참고해서 답변을 생성하는 중…", "is-loading");
+    renderThread({ loading: true });
 
     fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: question }),
+      body: JSON.stringify({ question: question, history: historyToSend }),
     })
       .then(function (res) {
         return res.json().then(function (data) {
@@ -37,25 +56,59 @@
         });
       })
       .then(function (data) {
-        showAskState(data.answer || "답변을 받지 못했습니다.", "");
+        conversation.push({ role: "model", text: data.answer || "답변을 받지 못했습니다." });
+        renderThread({});
       })
       .catch(function (err) {
-        showAskState(
-          "답변을 가져오지 못했습니다. (" + (err && err.message ? err.message : "알 수 없는 오류") + ")",
-          "is-error"
-        );
+        renderThread({
+          errorText:
+            "답변을 가져오지 못했습니다. (" + (err && err.message ? err.message : "알 수 없는 오류") + ")",
+        });
       })
       .finally(function () {
         submitBtn.disabled = false;
       });
   }
 
-  function showAskState(text, extraClass) {
+  // conversation 배열 전체를 질문/답변 말풍선으로 다시 그린다.
+  // opts.loading이면 마지막에 로딩 표시를, opts.errorText가 있으면 마지막에 오류 표시를 덧붙인다.
+  function renderThread(opts) {
     askAnswerEl.textContent = "";
+
+    conversation.forEach(function (turn) {
+      var row = document.createElement("div");
+      row.className = "ask-turn ask-turn-" + turn.role;
+
+      var label = document.createElement("p");
+      label.className = "ask-turn-label";
+      label.textContent = turn.role === "user" ? "질문" : "답변";
+      row.appendChild(label);
+
+      var box = document.createElement("div");
+      box.className = "ask-answer-box";
+      box.textContent = turn.text;
+      row.appendChild(box);
+
+      askAnswerEl.appendChild(row);
+    });
+
+    if (opts.loading) {
+      askAnswerEl.appendChild(buildStateBox("이전 대화를 참고해서 답변을 생성하는 중…", "is-loading"));
+    } else if (opts.errorText) {
+      askAnswerEl.appendChild(buildStateBox(opts.errorText, "is-error"));
+    }
+
+    askAnswerEl.scrollTop = askAnswerEl.scrollHeight;
+  }
+
+  function buildStateBox(text, extraClass) {
+    var row = document.createElement("div");
+    row.className = "ask-turn ask-turn-model";
     var box = document.createElement("div");
     box.className = "ask-answer-box" + (extraClass ? " " + extraClass : "");
     box.textContent = text;
-    askAnswerEl.appendChild(box);
+    row.appendChild(box);
+    return row;
   }
 
   fetch("data.json", { cache: "no-store" })
